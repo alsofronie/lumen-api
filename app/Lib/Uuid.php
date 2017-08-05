@@ -2,6 +2,13 @@
 
 namespace App\Lib;
 
+/**
+ * A simple UUID4 only class generator.
+ * Heavily inspired from webpatser/laravel-uuid
+ * @see https://github.com/webpatser/laravel-uuid
+ *
+ * @package App\Lib
+ */
 class Uuid
 {
     protected static $randomGenerator = null;
