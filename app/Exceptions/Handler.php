@@ -52,6 +52,7 @@ class Handler extends ExceptionHandler
         if ($e instanceof ApiException) {
             $details = $e->getDetails();
             $type = $e->getType();
+            $status = $e->getStatusCode();
         } elseif ($e instanceof HttpExceptionInterface || method_exists($e, 'getStatusCode')) {
             $status = $e->getStatusCode();
         } elseif ($e instanceof ModelNotFoundException) {
@@ -76,7 +77,7 @@ class Handler extends ExceptionHandler
             $error['details'] = $details;
         }
 
-        if (app()->environment() === 'local' && $request->has('_debug')) {
+        if (env('APP_DEBUG') && $request->has('_debug')) {
             $error['debug'] = [
                 'line' => $e->getLine(),
                 'file' => $e->getFile(),

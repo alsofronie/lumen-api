@@ -62,6 +62,7 @@ $app->routeMiddleware([
 ]);
 
 $app->middleware([
+    \App\Http\Middleware\JsonHeaders::class,
     App\Http\Middleware\AppendApiHeaders::class
 ]);
 

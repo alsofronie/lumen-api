@@ -9,16 +9,17 @@ class GeneralRoutesTest extends TestCase
 {
     use DatabaseMigrations, DatabaseTransactions;
 
-    public function testGeneralHeaders()
+    public function testXApiHeaders()
     {
-        $appName = 'HypeVertising';
-        $appVersion = '1.0.0';
-
-        list($versionMajor, $versionMinor, $build) = explode('.', $appVersion);
+        $appName = env('APP_NAME');
+        $appVersion = env('APP_VERSION');
+        $versionMajor = 1;
 
         $this
-            ->get('/api/v' . $versionMajor, ['Content-Type' => 'application/json',])
-            ->dd()
+            ->get('/api/v' . $versionMajor, [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ])
             ->seeStatusCode(200)
             ->seeJson([
                 'name' => $appName,
@@ -27,4 +28,38 @@ class GeneralRoutesTest extends TestCase
             ->seeHeader('X-API-VERSION', $appVersion)
             ->seeHeader('X-API-MIME', 'application/json');
     }
+
+    public function testFailJsonAcceptHeaders()
+    {
+        $this->get('/api/v1', ['Accept' => 'text/html'])
+            ->seeStatusCode(406)
+            ->seeJson([
+                'error' => true,
+                'type' => 'invalid_header'
+            ])
+        ;
+    }
+
+    public function testFailJsonEmptyAcceptHeader()
+    {
+        $this->get('/api/v1', ['Accept' => ''])
+            ->seeStatusCode(406)
+            ->seeJson([
+                'error' => true,
+                'type' => 'empty_header'
+            ])
+        ;
+    }
+
+    public function testAcceptJsonAcceptHeaders()
+    {
+        $this->get('/api/v1', ['Accept' => 'application/json'])
+            ->seeStatusCode(200)
+            ->dontSeeJson([
+                'error' => true,
+            ]);
+        ;
+    }
+
+
 }
