@@ -80,4 +80,12 @@ class ProfileTest extends TestCase
             ])
         ;
     }
+
+    public function testFailUpdate()
+    {
+        $headers = $this->authHeaders();
+        $this->json('PUT', '/api/v1/profile', [], $headers)
+            ->seeStatusCode(422)
+        ;
+    }
 }

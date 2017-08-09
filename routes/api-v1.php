@@ -23,4 +23,5 @@ $app->group([
     'middleware' => 'auth',
 ], function ($app) {
     $app->get('/profile', 'ProfileController@index');
+    $app->put('/profile', 'ProfileController@update');
 });

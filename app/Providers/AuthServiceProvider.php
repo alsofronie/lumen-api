@@ -51,7 +51,7 @@ class AuthServiceProvider extends ServiceProvider
                 }
             }
 
-            throw new ApiException(1005);
+            return null;
         });
     }
 
