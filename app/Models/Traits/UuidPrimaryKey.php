@@ -31,7 +31,7 @@ trait UuidPrimaryKey
     {
         static::creating(function ($model) {
             $model->incrementing = false;
-            $model->attributes[$model->getKeyName()] = Uuid::create()->str;
+            $model->attributes[$model->getKeyName()] = (new Uuid())->bin;
         });
     }
 }

@@ -16,4 +16,15 @@ abstract class TestCase extends \Laravel\Lumen\Testing\TestCase
         print_r($this->response->getContent());
         return $this;
     }
+
+    protected function authHeaders(\App\Models\User $user = null)
+    {
+        if ($user === null) {
+            $user = factory(\App\Models\User::class)->create();
+        }
+
+        return [
+            'Authorization' => 'Bearer ' . \App\Lib\JsonWebToken::encode($user),
+        ];
+    }
 }

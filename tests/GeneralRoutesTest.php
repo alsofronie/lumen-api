@@ -61,5 +61,16 @@ class GeneralRoutesTest extends TestCase
         ;
     }
 
+    public function testNonExistentUrl()
+    {
+        $this->json('GET', '/api/v1/non-existent-endpoint')
+            ->seeStatusCode(404)
+            ->seeJson([
+                'error' => true,
+                'code' => 10404,
+            ])
+        ;
+    }
+
 
 }

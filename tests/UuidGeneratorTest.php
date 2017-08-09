@@ -9,9 +9,14 @@
 namespace Tests;
 
 use App\Lib\Uuid;
+use App\Models\User;
+use Laravel\Lumen\Testing\DatabaseMigrations;
+use Laravel\Lumen\Testing\DatabaseTransactions;
 
 class UuidGeneratorTest extends TestCase
 {
+    use DatabaseTransactions, DatabaseMigrations;
+
     public function testFormat()
     {
         $uuid = new Uuid();
@@ -24,15 +29,38 @@ class UuidGeneratorTest extends TestCase
         static::assertRegExp('/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/', $uuid->uuid);
     }
 
-    public function testCollisions()
+    public function testCreatingUserWithBinaryUuidTrait()
     {
-        $generated = [];
-        for ($i = 0; $i < 10; $i++) {
-            $uuid = new Uuid();
-            foreach ($generated as $g) {
-                static::assertNotEquals($uuid->bin, $g);
-            }
-            $generated[] = $uuid->bin;
-        }
+        $user = factory(User::class)->create();
+
+        static::assertNotNull($user->id);
+        static::assertFalse(ctype_print($user->id));
+        static::assertEquals(16, strlen($user->id));
+    }
+
+    public function testQueryingUserWithBinaryUuidTrait()
+    {
+        $user = factory(User::class)->create();
+        $retrieved = User::find($user->id);
+        static::assertNotNull($retrieved);
+        static::assertEquals($user->id, $retrieved->id);
+        static::assertEquals($user->name, $retrieved->name);
+        static::assertEquals($user->email, $retrieved->email);
+    }
+
+    public function testSerializingUserWithBinaryTrait()
+    {
+        $user = factory(User::class)->create();
+        $serialized = serialize($user);
+        $unserialized = unserialize($serialized);
+        static::assertEquals($user->id, $unserialized->id);
+        static::assertEquals($user->name, $unserialized->name);
+        static::assertEquals($user->email, $unserialized->email);
+
+        $retrieved = User::find($user->id);
+        static::assertNotNull($retrieved);
+        static::assertEquals($user->id, $retrieved->id);
+        static::assertEquals($user->name, $retrieved->name);
+        static::assertEquals($user->email, $retrieved->email);
     }
 }

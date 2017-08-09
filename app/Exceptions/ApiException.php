@@ -13,6 +13,13 @@ class ApiException extends \Exception
     protected static $codes = [
         1001 => ['http' => 406, 'message' => 'Empty header', 'type' => 'empty_header'],
         1002 => ['http' => 406, 'message' => 'Invalid header', 'type' => 'invalid_header'],
+        1003 => ['http' => 403, 'message' => 'Invalid credentials', 'type' => 'authentication'],
+        1004 => ['http' => 403, 'message' => 'Invalid credentials', 'type' => 'authentication'],
+        1005 => ['http' => 401, 'message' => 'Missing token', 'type' => 'authentication'],
+        1006 => ['http' => 403, 'message' => 'Invalid signature', 'type' => 'authentication'],
+        1007 => ['http' => 403, 'message' => 'Invalid token', 'type' => 'authentication'],
+        1008 => ['http' => 403, 'message' => 'Expired token', 'type' => 'authentication'],
+        1009 => ['http' => 403, 'message' => 'Token error', 'type' => 'authentication'],
     ];
 
     protected $details = null;
@@ -31,29 +38,35 @@ class ApiException extends \Exception
 
     protected static function messageFromCode($code)
     {
-        if (isset(static::$codes[$code])) {
-            return static::$codes[$code]['message'];
+        if (!isset(static::$codes[$code])) {
+            // @codeCoverageIgnoreStart
+            return 'error';
+            // @codeCoverageIgnoreEnd
         }
 
-        return 'error';
+        return static::$codes[$code]['message'];
     }
 
     protected static function statusFromCode($code)
     {
-        if (isset(static::$codes[$code])) {
-            return static::$codes[$code]['http'];
+        if (!isset(static::$codes[$code])) {
+            // @codeCoverageIgnoreStart
+            return 500;
+            // @codeCoverageIgnoreEnd
         }
 
-        return 500;
+        return static::$codes[$code]['http'];
     }
 
     protected static function typeFromCode($code)
     {
-        if (isset(static::$codes[$code])) {
-            return static::$codes[$code]['type'];
+        if (!isset(static::$codes[$code])) {
+            // @codeCoverageIgnoreStart
+            return 'unknown';
+            // @codeCoverageIgnoreEnd
         }
 
-        return 500;
+        return static::$codes[$code]['type'];
     }
 
     public function getStatusCode()

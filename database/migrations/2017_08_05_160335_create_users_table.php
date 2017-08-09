@@ -14,13 +14,13 @@ class CreateUsersTable extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password', 70);
-
             $table->timestamps();
         });
+        app('db')->statement('ALTER TABLE users ADD id BINARY(16);');
+        app('db')->statement('ALTER TABLE users ADD PRIMARY KEY(id);');
     }
 
     /**

@@ -13,6 +13,14 @@
 
 $app->get('/', 'HomeController@index');
 
+$app->post('/auth/login', 'AuthController@login');
+
 //$app->get('/', function () use ($app) {
 //    return $app->version();
 //});
+
+$app->group([
+    'middleware' => 'auth',
+], function ($app) {
+    $app->get('/profile', 'ProfileController@index');
+});

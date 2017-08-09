@@ -57,26 +57,38 @@ class Handler extends ExceptionHandler
             $status = $e->getStatusCode();
         } elseif ($e instanceof ModelNotFoundException) {
             $status = 404;
+            $type = 'resource_not_found';
         } elseif ($e instanceof AuthorizationException) {
             $status = 403;
+            $type = 'authorization';
         } elseif ($e instanceof ValidationException && $e->getResponse()) {
             $status = 422;
             $response = $e->getResponse()->getContent();
             $details = json_decode($response);
         }
 
+        $code = $e->getCode();
+        if (!$code) {
+            $code = 10000 + $status;
+        }
+
         $error = [
             'error' => true,
-            'code' => $e->getCode(),
+            'code' => $code,
             'status' => $status,
             'message' => $e->getMessage(),
-            'type' => $type ? $type : strtolower(snake_case(class_basename($e))),
+            'type' => $type ? $type : str_replace('_exception', '', strtolower(snake_case(class_basename($e)))),
         ];
 
         if (null !== $details) {
             $error['details'] = $details;
         }
 
+        /**
+         * Don't test the debug :)
+         */
+
+        // @codeCoverageIgnoreStart
         if (env('APP_DEBUG') && $request->has('_debug')) {
             $error['debug'] = [
                 'line' => $e->getLine(),
@@ -84,6 +96,7 @@ class Handler extends ExceptionHandler
                 'trace' => $e->getTrace(),
             ];
         }
+        // @codeCoverageIgnoreEnd
 
         return response()->json($error, $status);
     }

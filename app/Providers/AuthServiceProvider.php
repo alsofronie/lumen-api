@@ -2,7 +2,12 @@
 
 namespace App\Providers;
 
-use App\Models\User;
+use App\Exceptions\ApiException;
+use App\Lib\JsonWebToken;
+use Firebase\JWT\BeforeValidException;
+use Firebase\JWT\ExpiredException;
+use Firebase\JWT\SignatureInvalidException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -32,16 +37,35 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->app['auth']->viaRequest('api', function ($request) {
             $token = $this->getToken($request);
-
-            if (!$token) {
-
+            if ($token) {
+                try {
+                    return JsonWebToken::decode($token);
+                } catch (SignatureInvalidException $ex) {
+                    throw new ApiException(1006, null, null, $ex);
+                } catch (BeforeValidException $ex) {
+                    throw new ApiException(1007, null, null, $ex);
+                } catch (ExpiredException $ex) {
+                    throw new ApiException(1008, null, null, $ex);
+                } catch (\Exception $ex) {
+                    throw new ApiException(1009, null, null, $ex);
+                }
             }
 
-            $uid = $this->decodeUid($token);
-
-            if ($request->input('api_token')) {
-                return User::where('api_token', $request->input('api_token'))->first();
-            }
+            throw new ApiException(1005);
         });
+    }
+
+    protected function getToken(Request $request)
+    {
+        $header = $request->header('Authorization');
+        if ($header && starts_with($header, 'Bearer ')) {
+            return substr($header, 7);
+        }
+
+        if ($request->has('_api_token')) {
+            return $request->input('_api_token');
+        }
+
+        return null;
     }
 }

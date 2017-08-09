@@ -28,6 +28,15 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $hidden = [
-        'password',
+        'id', 'password',
     ];
+
+    protected $appends = [
+        'uuid'
+    ];
+
+    public function getUuidAttribute()
+    {
+        return bin2hex($this->id);
+    }
 }
