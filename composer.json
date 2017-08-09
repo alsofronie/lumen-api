@@ -35,7 +35,7 @@
     },
     "scripts": {
         "post-root-package-install": [
-            "php -3 \"copy('.env.example', '.env');\""
+            "php -r \"copy('.env.example', '.env');\""
         ]
     },
     "minimum-stability": "dev",
